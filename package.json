@@ -1,0 +1,35 @@
+{
+  "name": "contractor",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "test": "mocha 'src/__tests__/**/*.test.ts'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tsconfig/node18": "^18.2.4",
+    "@types/chai": "^4.3.16",
+    "@types/mocha": "^10.0.7",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "chai": "^5.1.1",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.29.1",
+    "mocha": "^10.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.2",
+    "typescript-eslint-language-service": "^5.0.5"
+  }
+}

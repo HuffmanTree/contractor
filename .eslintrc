@@ -1,0 +1,41 @@
+{
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  },
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "import"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript"
+  ],
+  "rules": {
+    "no-multi-spaces": ["error"],
+    "eqeqeq": ["error"],
+    "@typescript-eslint/no-namespace": "warn",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "ignoreRestSiblings": true }
+    ],
+    "@typescript-eslint/consistent-type-imports": "error",
+    "semi-spacing": ["error", { "before": false, "after": true }],
+    "semi": "off",
+    "@typescript-eslint/semi": ["error", "always"],
+    "quotes": "off",
+    "@typescript-eslint/quotes": ["error", "double"],
+    "comma-dangle": "off",
+    "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
+    "@typescript-eslint/no-explicit-any": "error",
+    "import/no-cycle": "error",
+    "import/order": ["error", { "alphabetize": { "order": "asc", "caseInsensitive": true } }],
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "no-trailing-spaces": "error",
+    "no-multiple-empty-lines": ["error", { "max": 1, "maxBOF": 0, "maxEOF": 0 }]
+  }
+}
