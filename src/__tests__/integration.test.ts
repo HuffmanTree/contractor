@@ -1,5 +1,6 @@
 import { expect } from "chai";
-import { EthereumProvider, TezosProvider } from "../services/blockchain.service.js";
+import { EthereumProvider } from "../services/ethereum.service.js";
+import { TezosProvider } from "../services/tezos.service.js";
 
 // These tests must not run outside of a local environment
 describe.skip("Integration Tests", () => {

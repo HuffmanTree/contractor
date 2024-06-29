@@ -4,7 +4,9 @@ import { expect } from "chai";
 import { stub } from "sinon";
 import { Web3Eth } from "web3";
 import type { TezosProfile } from "../../models/profile.model.js";
-import { BlockchainProviderFactory, EthereumProvider, TezosProvider } from "../../services/blockchain.service.js";
+import { BlockchainProviderFactory } from "../../services/blockchain.service.js";
+import { EthereumProvider } from "../../services/ethereum.service.js";
+import { TezosProvider } from "../../services/tezos.service.js";
 
 describe("Blockchain Provider Factory", () => {
   it("fails to create a provider from an unrecognized profile", () => {
