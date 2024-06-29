@@ -14,6 +14,8 @@
     "build": "tsc -p tsconfig.json",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
+    "node:ethereum": "npx ganache --mnemonic 'hen extra enforce fantasy gap trouble tomato erupt brisk pledge problem merit'",
+    "node:tezos": "docker run -d -p 0.0.0.0:8732:8732 --name oxfordbox ghcr.io/tez-capital/tezbox:tezos-v19.1",
     "test": "mocha 'src/__tests__/**/*.test.ts'"
   },
   "keywords": [],
