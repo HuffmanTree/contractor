@@ -23,13 +23,19 @@
     "@tsconfig/node18": "^18.2.4",
     "@types/chai": "^4.3.16",
     "@types/mocha": "^10.0.7",
+    "@types/sinon": "^17.0.3",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "chai": "^5.1.1",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
     "mocha": "^10.4.0",
+    "sinon": "^18.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.2",
     "typescript-eslint-language-service": "^5.0.5"
+  },
+  "dependencies": {
+    "@taquito/taquito": "^20.0.1",
+    "web3": "^4.10.0"
   }
 }
