@@ -1,5 +1,9 @@
 {
   "extends": "@tsconfig/node18/tsconfig.json",
+    "ts-node": {
+    "files": true
+  },
+  "files": ["solc.d.ts"],
   "compilerOptions": {
     "esModuleInterop": true,
     "lib": ["ES2022"],
@@ -18,6 +22,6 @@
       "name": "typescript-eslint-language-service"
     }]
   },
-  "include": ["src"],
+  "include": ["src", "solc.d.ts"],
   "exclude": ["src/__tests__"]
 }

@@ -2,7 +2,8 @@ import { RpcClient } from "@taquito/rpc";
 import { BigNumber } from "bignumber.js";
 import { expect } from "chai";
 import { stub } from "sinon";
-import { Web3Eth } from "web3";
+import { Web3Eth, Contract } from "web3";
+import { Net } from "web3-net";
 import type { TezosProfile } from "../../models/profile.model.js";
 import { BlockchainProviderFactory } from "../../services/blockchain.service.js";
 import { EthereumProvider } from "../../services/ethereum.service.js";
@@ -41,6 +42,39 @@ describe("Ethereum Provider", () => {
     expect(getBalance.calledOnceWithExactly("address")).to.be.true;
 
     getBalance.restore();
+  });
+
+  it("deploys a smart contract", async () => {
+    const deploy = stub(Contract.prototype, "deploy").returns({
+      encodeABI: () => "0xcafe",
+      estimateGas: () => Promise.resolve(60000n),
+    } as any);
+    const getGasPrice = stub(Web3Eth.prototype, "getGasPrice").resolves(3);
+    const getTransactionCount = stub(Web3Eth.prototype, "getTransactionCount").resolves(2);
+    const getChainId = stub(Web3Eth.prototype, "getChainId").resolves(1);
+    const getId = stub(Net.prototype, "getId").resolves(42);
+    const sendSignedTransaction = stub(Web3Eth.prototype, "sendSignedTransaction").resolves({
+      transactionHash: "0x6b095c21a0c07b578490abe70e80603dc83071fcec836e83d8ce9701bbd8a949",
+      contractAddress: "contract-address",
+    } as any);
+
+    expect(await provider.deploy(`// SPDX-License-Identifier: MIT
+// compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
+pragma solidity ^0.8.24;
+
+contract HelloWorld {
+    string public greet = "Hello World!";
+}`, undefined, Buffer.from("6d3172932aa1f837073971506a15cfcc7b76c427b651a8d3c5a974abec79165f", "hex"))).to.deep.equal({
+      address: "contract-address",
+      txHash: "0x6b095c21a0c07b578490abe70e80603dc83071fcec836e83d8ce9701bbd8a949",
+    });
+
+    deploy.restore();
+    getGasPrice.restore();
+    getTransactionCount.restore();
+    getChainId.restore();
+    getId.restore();
+    sendSignedTransaction.restore();
   });
 });
 
