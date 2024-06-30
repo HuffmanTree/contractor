@@ -1,3 +1,4 @@
+/* eslint no-console: 0 */
 import profiles from "./profiles.json" assert { type: "json" };
 import { Program } from "./program.js";
 

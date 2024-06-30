@@ -30,6 +30,7 @@
     "quotes": "off",
     "@typescript-eslint/quotes": ["error", "double"],
     "comma-dangle": "off",
+    "no-console": "error",
     "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
     "@typescript-eslint/no-explicit-any": "error",
     "import/no-cycle": "error",
