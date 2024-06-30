@@ -14,6 +14,16 @@ describe.skip("Integration Tests", () => {
       // 1000 ETH on fresh node
       expect(await provider.getBalance("0xc797A0025a36f70654adAAC16af1751cC06EFcaD")).to.equal("1000000000000000000000");
     });
+
+    it("deploys a contract", async () => {
+      expect(await provider.deploy(`// SPDX-License-Identifier: MIT
+// compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
+pragma solidity ^0.8.24;
+
+contract HelloWorld {
+    string public greet = "Hello World!";
+}`, undefined, Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"))).to.have.keys("address", "txHash");
+    });
   });
 
   describe("Tezos", () => {
