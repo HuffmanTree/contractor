@@ -1,0 +1,30 @@
+* LEARNINGS
+
+What I have learned, or re-learned, while working on this project.
+
+** Transaction encoding
+
+*** Ethereum
+
+**** Legacy
+
+Given a legacy transaction
+
+#+BEGIN_SRC
+  tx { nonce gasPrice gasLimit to value data chainId }
+#+END_SRC
+
+We define
+
+#+BEGIN_SRC
+  { s r recovery } = secp256k1.sign(keccak256(rlp([nonce gasPrice gasLimit to value data chainId 0 0])), privateKey)
+  v = recovery + 35 + 2 * chainId
+  rawTransaction = rlp([nonce gasPrice gasLimit to value data v r s])
+  transactionHash = keccak256(rawTransaction)
+#+END_SRC
+
+**** EIP-2930
+
+**** EIP-1559
+
+*** Tezos
