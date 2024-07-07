@@ -16,7 +16,7 @@ export class EthereumProvider implements BlockchainProvider {
     return balance.toString();
   }
 
-  async deploy(code: string, parameters: unknown[] = [], privateKey: Buffer): Promise<{ address: string, txHash: string }> {
+  async deploy(code: string, parameters: unknown[] = [], privateKey: Buffer): Promise<{ address: string, txHash: string, gasUsed: string }> {
     const input = {
       language: "Solidity",
       sources: {
@@ -60,6 +60,6 @@ export class EthereumProvider implements BlockchainProvider {
     const receipt = await this._client.eth.sendSignedTransaction(rawTransaction);
     if (!receipt.contractAddress) throw new Error("Missing 'contractAddress'");
     if (transactionHash !== receipt.transactionHash) throw new Error("Transaction hash mismatch");
-    return { address: receipt.contractAddress, txHash: transactionHash };
+    return { address: receipt.contractAddress, txHash: transactionHash, gasUsed: receipt.gasUsed.toString() };
   }
 }

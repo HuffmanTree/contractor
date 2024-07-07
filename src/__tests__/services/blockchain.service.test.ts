@@ -56,6 +56,7 @@ describe("Ethereum Provider", () => {
     const sendSignedTransaction = stub(Web3Eth.prototype, "sendSignedTransaction").resolves({
       transactionHash: "0x6b095c21a0c07b578490abe70e80603dc83071fcec836e83d8ce9701bbd8a949",
       contractAddress: "contract-address",
+      gasUsed: 59233,
     } as any);
 
     expect(await provider.deploy(`// SPDX-License-Identifier: MIT
@@ -67,6 +68,7 @@ contract HelloWorld {
 }`, undefined, Buffer.from("6d3172932aa1f837073971506a15cfcc7b76c427b651a8d3c5a974abec79165f", "hex"))).to.deep.equal({
       address: "contract-address",
       txHash: "0x6b095c21a0c07b578490abe70e80603dc83071fcec836e83d8ce9701bbd8a949",
+      gasUsed: "59233",
     });
 
     deploy.restore();
