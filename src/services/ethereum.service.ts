@@ -50,6 +50,24 @@ export class EthereumProvider implements BlockchainProvider {
     return { abi, bytecode };
   }
 
+  async send(code: string, address: string, entrypoint: string, parameters: unknown[] = [], privateKey: Buffer): Promise<{ txHash: string, gasUsed: string }> {
+    const { abi } = EthereumProvider._getAbiAndBytecode(code);
+    const contract = new this._client.eth.Contract(abi, address);
+    const sender = contract.methods[entrypoint](...parameters);
+    const { rawTransaction, transactionHash } = await this._client.eth.accounts.signTransaction({
+      to: address,
+      data: sender.encodeABI(),
+      gas: await sender.estimateGas(),
+      gasPrice: await this._client.eth.getGasPrice(),
+      nonce: await this._client.eth.getTransactionCount(this._client.eth.accounts.privateKeyToAddress(privateKey)),
+      chainId: await this._client.eth.getChainId(),
+      networkId: await this._client.eth.net.getId(),
+    }, privateKey);
+    const receipt = await this._client.eth.sendSignedTransaction(rawTransaction);
+    if (transactionHash !== receipt.transactionHash) throw new Error("Transaction hash mismatch");
+    return { txHash: transactionHash, gasUsed: receipt.gasUsed.toString() };
+  }
+
   async deploy(code: string, parameters: unknown[] = [], privateKey: Buffer): Promise<{ address: string, txHash: string, gasUsed: string }> {
     const { abi, bytecode } = EthereumProvider._getAbiAndBytecode(code);
     const contract = new this._client.eth.Contract(abi);

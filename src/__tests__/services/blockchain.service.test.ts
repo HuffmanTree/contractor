@@ -78,6 +78,42 @@ contract HelloWorld {
     getId.restore();
     sendSignedTransaction.restore();
   });
+
+  it("sends a transaction to a contract", async () => {
+    const send = stub(Contract.prototype, "methods").get(() => ({
+      setGreet: () => ({
+        encodeABI: () => "0xcafe",
+        estimateGas: () => Promise.resolve(60000n),
+      }),
+    }));
+    const getGasPrice = stub(Web3Eth.prototype, "getGasPrice").resolves(3);
+    const getTransactionCount = stub(Web3Eth.prototype, "getTransactionCount").resolves(2);
+    const getChainId = stub(Web3Eth.prototype, "getChainId").resolves(1);
+    const getId = stub(Net.prototype, "getId").resolves(42);
+    const sendSignedTransaction = stub(Web3Eth.prototype, "sendSignedTransaction").resolves({
+      transactionHash: "0x77ac4ad660b882d9c9333a1986efe137a070121ced6f0c4247d72c21c994217b",
+      gasUsed: 59233,
+    } as any);
+
+    expect(await provider.send(`// SPDX-License-Identifier: MIT
+// compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
+pragma solidity ^0.8.24;
+
+contract HelloWorld {
+    string public greet = "Hello World!";
+    function setGreet(string memory _greet) public { greet = _greet; }
+}`, "0x76155e5B8c79713b2964b147149547E36973d805", "setGreet", ["Hello Ethereum!"], Buffer.from("6d3172932aa1f837073971506a15cfcc7b76c427b651a8d3c5a974abec79165f", "hex"))).to.deep.equal({
+      txHash: "0x77ac4ad660b882d9c9333a1986efe137a070121ced6f0c4247d72c21c994217b",
+      gasUsed: "59233",
+    });
+
+    send.restore();
+    getGasPrice.restore();
+    getTransactionCount.restore();
+    getChainId.restore();
+    getId.restore();
+    sendSignedTransaction.restore();
+  });
 });
 
 describe("Tezos Provider", () => {
