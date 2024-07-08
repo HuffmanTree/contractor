@@ -16,7 +16,7 @@ export class EthereumProvider implements BlockchainProvider {
     return balance.toString();
   }
 
-  async deploy(code: string, parameters: unknown[] = [], privateKey: Buffer): Promise<{ address: string, txHash: string, gasUsed: string }> {
+  private static _getAbiAndBytecode(code: string): { abi: ContractAbi, bytecode: string } {
     const input = {
       language: "Solidity",
       sources: {
@@ -45,8 +45,13 @@ export class EthereumProvider implements BlockchainProvider {
         }>,
       },
     } = JSON.parse(solc.compile(JSON.stringify(input)));
-    if (Object.keys(output.contracts["contract.sol"]).length > 1) throw new Error("Deploying multiple contracts is not supported");
+    if (Object.keys(output.contracts["contract.sol"]).length > 1) throw new Error("Multiple contracts in a single file is not supported");
     const [{ abi, evm: { bytecode: { object: bytecode } } }] = Object.values(output.contracts["contract.sol"]);
+    return { abi, bytecode };
+  }
+
+  async deploy(code: string, parameters: unknown[] = [], privateKey: Buffer): Promise<{ address: string, txHash: string, gasUsed: string }> {
+    const { abi, bytecode } = EthereumProvider._getAbiAndBytecode(code);
     const contract = new this._client.eth.Contract(abi);
     const deployer = contract.deploy({ data: `0x${bytecode}`, arguments: parameters });
     const { rawTransaction, transactionHash } = await this._client.eth.accounts.signTransaction({
