@@ -68,6 +68,17 @@ export class EthereumProvider implements BlockchainProvider {
     return { txHash: transactionHash, gasUsed: receipt.gasUsed.toString() };
   }
 
+  async call(code: string, address: string, entrypoint: string, parameters: unknown[] = []): Promise<string> {
+    const { abi } = EthereumProvider._getAbiAndBytecode(code);
+    const contract = new this._client.eth.Contract(abi, address);
+    const caller = contract.methods[entrypoint](...parameters);
+    const result = await this._client.eth.call({
+      to: address,
+      data: caller.encodeABI(),
+    });
+    return result;
+  }
+
   async deploy(code: string, parameters: unknown[] = [], privateKey: Buffer): Promise<{ address: string, txHash: string, gasUsed: string }> {
     const { abi, bytecode } = EthereumProvider._getAbiAndBytecode(code);
     const contract = new this._client.eth.Contract(abi);

@@ -114,6 +114,27 @@ contract HelloWorld {
     getId.restore();
     sendSignedTransaction.restore();
   });
+
+  it("calls a contract", async () => {
+    const send = stub(Contract.prototype, "methods").get(() => ({
+      getGreet: () => ({
+        encodeABI: () => "0xcafe",
+      }),
+    }));
+    const call = stub(Web3Eth.prototype, "call").resolves("0x48656c6c6f20576f726c6421"); // "Hello World!" hex-encoded
+
+    expect(await provider.call(`// SPDX-License-Identifier: MIT
+// compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
+pragma solidity ^0.8.24;
+
+contract HelloWorld {
+    string public greet = "Hello World!";
+    function getGreet() public view returns (string memory) { return greet; }
+}`, "0x76155e5B8c79713b2964b147149547E36973d805", "getGreet")).to.equal("0x48656c6c6f20576f726c6421");
+
+    send.restore();
+    call.restore();
+  });
 });
 
 describe("Tezos Provider", () => {
