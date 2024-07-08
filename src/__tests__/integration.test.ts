@@ -25,15 +25,22 @@ contract HelloWorld {
 }`, undefined, Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"))).to.have.keys("address", "txHash", "gasUsed");
     });
 
-    it("deploys a contract with parameters", async () => {
-      expect(await provider.deploy(`// SPDX-License-Identifier: MIT
+    it("deploys a contract with parameters and changes its state", async () => {
+      const code = `// SPDX-License-Identifier: MIT
 // compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
 pragma solidity ^0.8.24;
 
 contract AgeContract {
     uint256 public age;
     constructor(uint256 _age) { age = _age; }
-}`, [30], Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"))).to.have.keys("address", "txHash", "gasUsed");
+    function setAge(uint256 _age) public { age = _age; }
+}`;
+
+      const receipt = await provider.deploy(code, [30], Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"));
+
+      expect(receipt).to.have.keys("address", "txHash", "gasUsed");
+
+      expect(await provider.send(code, receipt.address, "setAge", [60], Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"))).to.have.keys("txHash", "gasUsed");
     });
   });
 
