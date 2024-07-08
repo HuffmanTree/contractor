@@ -15,17 +15,23 @@ describe.skip("Integration Tests", () => {
       expect(await provider.getBalance("0xc797A0025a36f70654adAAC16af1751cC06EFcaD")).to.equal("1000000000000000000000");
     });
 
-    it("deploys a contract", async () => {
-      expect(await provider.deploy(`// SPDX-License-Identifier: MIT
+    it("deploys a contract and reads its state", async () => {
+      const code = `// SPDX-License-Identifier: MIT
 // compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
 pragma solidity ^0.8.24;
 
-contract HelloWorld {
-    string public greet = "Hello World!";
-}`, undefined, Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"))).to.have.keys("address", "txHash", "gasUsed");
+contract AgeContract {
+    uint256 public age = 30;
+}`;
+
+      const receipt = await provider.deploy(code, undefined, Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"));
+
+      expect(receipt).to.have.keys("address", "txHash", "gasUsed");
+
+      expect(await provider.call(code, receipt.address, "age")).to.equal("0x000000000000000000000000000000000000000000000000000000000000001e"); // 30, 32-bytes hex encoded
     });
 
-    it("deploys a contract with parameters and changes its state", async () => {
+    it("deploys a contract with parameters, changes and reads its state", async () => {
       const code = `// SPDX-License-Identifier: MIT
 // compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
 pragma solidity ^0.8.24;
@@ -34,13 +40,16 @@ contract AgeContract {
     uint256 public age;
     constructor(uint256 _age) { age = _age; }
     function setAge(uint256 _age) public { age = _age; }
+    function getAge() public view returns (uint256) { return age; }
 }`;
 
       const receipt = await provider.deploy(code, [30], Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"));
 
       expect(receipt).to.have.keys("address", "txHash", "gasUsed");
 
+      expect(await provider.call(code, receipt.address, "getAge")).to.equal("0x000000000000000000000000000000000000000000000000000000000000001e"); // 30, 32-bytes hex encoded
       expect(await provider.send(code, receipt.address, "setAge", [60], Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"))).to.have.keys("txHash", "gasUsed");
+      expect(await provider.call(code, receipt.address, "getAge")).to.equal("0x000000000000000000000000000000000000000000000000000000000000003c"); // 60, 32-bytes hex encoded
     });
   });
 
