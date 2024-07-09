@@ -12,6 +12,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "build:watch": "tsc -p tsconfig.json -w",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "node:ethereum": "npx ganache --mnemonic 'hen extra enforce fantasy gap trouble tomato erupt brisk pledge problem merit'",
