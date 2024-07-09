@@ -1,6 +1,6 @@
 import type { ContractAbi } from "web3";
 import { Web3 } from "web3";
-import type { BlockchainProvider } from "../models/blockchain.model.js";
+import { isEthereumAbiConstructorFragment, isEthereumAbiEventFragment, isEthereumAbiFunctionFragment, type BlockchainProvider, type EthereumContractInfo } from "../models/blockchain.model.js";
 import type { EthereumProfile } from "../models/profile.model.js";
 import solc from "solc";
 
@@ -14,6 +14,21 @@ export class EthereumProvider implements BlockchainProvider {
   async getBalance(address: string): Promise<string> {
     const balance = await this._client.eth.getBalance(address);
     return balance.toString();
+  }
+
+  public static getInfo({ code, contract }: { code: string, contract?: string }): EthereumContractInfo {
+    const { abi } = EthereumProvider._getAbiAndBytecode(code, contract);
+    const constructor = { input: abi.find(isEthereumAbiConstructorFragment)?.inputs?.map(v => v.type) || [] };
+    const functions = abi.filter(isEthereumAbiFunctionFragment).map(v => ({
+      name: v.name,
+      input: v.inputs?.map(v => v.type) || [],
+      output: v.outputs?.map(v => v.type) || [],
+    }));
+    const events = abi.filter(isEthereumAbiEventFragment).map(v => ({
+      name: v.name,
+      input: v.inputs?.map(v => v.type) || [],
+    }));
+    return { constructor, functions, events };
   }
 
   private static _getAbiAndBytecode(code: string, contract?: string): { abi: ContractAbi, bytecode: string } {

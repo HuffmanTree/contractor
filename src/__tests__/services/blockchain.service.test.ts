@@ -221,6 +221,44 @@ contract HelloWorld {
     send.restore();
     call.restore();
   });
+
+  [
+    ["contract EmptyContract {}", { constructor: { input: [] }, functions: [], events: [] }],
+    ["contract OnlyStateContract { uint256 public a; bool public b; uint8[4] public ip = [127, 0, 0, 1]; address public me; mapping(address => uint256) public m; mapping(address => mapping(uint256 => bool)) public mm; }", {
+      constructor: { input: [] },
+      functions: [
+        { name: "a", input: [], output: ["uint256"] },
+        { name: "b", input: [], output: ["bool"] },
+        { name: "ip", input: ["uint256"], output: ["uint8"] },
+        { name: "m", input: ["address"], output: ["uint256"] },
+        { name: "me", input: [], output: ["address"] },
+        { name: "mm", input: ["address", "uint256"], output: ["bool"] },
+      ],
+      events: [],
+    }],
+    ["contract CounterContract { uint256 private c; constructor(uint256 _c) { c = _c; } function increment() public { c++; } function decrement() public { c--; } function counter() public view returns (uint256) { return c; } }", {
+      constructor: { input: ["uint256"] },
+      functions: [
+        { name: "counter", input: [], output: ["uint256"] },
+        { name: "decrement", input: [], output: [] },
+        { name: "increment", input: [], output: [] },
+      ],
+      events: [],
+    }],
+    ["contract BalanceContract { mapping(address => uint256) public balances; event Add(address indexed _address, uint256 _value); }", {
+      constructor: { input: [] },
+      functions: [{ name: "balances", input: ["address"], output: ["uint256"] }],
+      events: [{ name: "Add", input: ["address", "uint256"] }],
+    }],
+  ].forEach(([code, expectedInfo], i, arr) => {
+    it(`get info on the contract (${i + 1}/${arr.length})`, () => {
+      expect(EthereumProvider.getInfo({ code: `// SPDX-License-Identifier: MIT
+// compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
+pragma solidity ^0.8.24;
+
+${code}` })).to.deep.equal(expectedInfo);
+    });
+  });
 });
 
 describe("Tezos Provider", () => {
