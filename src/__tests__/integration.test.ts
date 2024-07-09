@@ -24,11 +24,11 @@ contract AgeContract {
     uint256 public age = 30;
 }`;
 
-      const receipt = await provider.deploy(code, undefined, Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"));
+      const receipt = await provider.deploy({ code }, Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"));
 
       expect(receipt).to.have.keys("address", "txHash", "gasUsed");
 
-      expect(await provider.call(code, receipt.address, "age")).to.equal("0x000000000000000000000000000000000000000000000000000000000000001e"); // 30, 32-bytes hex encoded
+      expect(await provider.call({ code, address: receipt.address, entrypoint: "age" })).to.equal("0x000000000000000000000000000000000000000000000000000000000000001e"); // 30, 32-bytes hex encoded
     });
 
     it("deploys a contract with parameters, changes and reads its state", async () => {
@@ -43,13 +43,13 @@ contract AgeContract {
     function getAge() public view returns (uint256) { return age; }
 }`;
 
-      const receipt = await provider.deploy(code, [30], Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"));
+      const receipt = await provider.deploy({ code, parameters: [30] }, Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"));
 
       expect(receipt).to.have.keys("address", "txHash", "gasUsed");
 
-      expect(await provider.call(code, receipt.address, "getAge")).to.equal("0x000000000000000000000000000000000000000000000000000000000000001e"); // 30, 32-bytes hex encoded
-      expect(await provider.send(code, receipt.address, "setAge", [60], Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"))).to.have.keys("txHash", "gasUsed");
-      expect(await provider.call(code, receipt.address, "getAge")).to.equal("0x000000000000000000000000000000000000000000000000000000000000003c"); // 60, 32-bytes hex encoded
+      expect(await provider.call({ code, address: receipt.address, entrypoint: "getAge" })).to.equal("0x000000000000000000000000000000000000000000000000000000000000001e"); // 30, 32-bytes hex encoded
+      expect(await provider.send({ code, address: receipt.address, entrypoint: "setAge", parameters: [60] }, Buffer.from("8120f6b018e852dd4f8db58be93e04f951d00cff399741824fce5167d63665d0", "hex"))).to.have.keys("txHash", "gasUsed");
+      expect(await provider.call({ code, address: receipt.address, entrypoint: "getAge" })).to.equal("0x000000000000000000000000000000000000000000000000000000000000003c"); // 60, 32-bytes hex encoded
     });
   });
 

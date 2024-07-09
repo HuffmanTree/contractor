@@ -145,13 +145,13 @@ contract A {
       gasUsed: 59233,
     } as any);
 
-    expect(await provider.deploy(`// SPDX-License-Identifier: MIT
+    expect(await provider.deploy({ code: `// SPDX-License-Identifier: MIT
 // compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
 pragma solidity ^0.8.24;
 
 contract HelloWorld {
     string public greet = "Hello World!";
-}`, undefined, Buffer.from("6d3172932aa1f837073971506a15cfcc7b76c427b651a8d3c5a974abec79165f", "hex"))).to.deep.equal({
+}` }, Buffer.from("6d3172932aa1f837073971506a15cfcc7b76c427b651a8d3c5a974abec79165f", "hex"))).to.deep.equal({
       address: "contract-address",
       txHash: "0x6b095c21a0c07b578490abe70e80603dc83071fcec836e83d8ce9701bbd8a949",
       gasUsed: "59233",
@@ -181,14 +181,14 @@ contract HelloWorld {
       gasUsed: 59233,
     } as any);
 
-    expect(await provider.send(`// SPDX-License-Identifier: MIT
+    expect(await provider.send({ code: `// SPDX-License-Identifier: MIT
 // compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
 pragma solidity ^0.8.24;
 
 contract HelloWorld {
     string public greet = "Hello World!";
     function setGreet(string memory _greet) public { greet = _greet; }
-}`, "0x76155e5B8c79713b2964b147149547E36973d805", "setGreet", ["Hello Ethereum!"], Buffer.from("6d3172932aa1f837073971506a15cfcc7b76c427b651a8d3c5a974abec79165f", "hex"))).to.deep.equal({
+}`, address: "0x76155e5B8c79713b2964b147149547E36973d805", entrypoint: "setGreet", parameters: ["Hello Ethereum!"] }, Buffer.from("6d3172932aa1f837073971506a15cfcc7b76c427b651a8d3c5a974abec79165f", "hex"))).to.deep.equal({
       txHash: "0x77ac4ad660b882d9c9333a1986efe137a070121ced6f0c4247d72c21c994217b",
       gasUsed: "59233",
     });
@@ -209,14 +209,14 @@ contract HelloWorld {
     }));
     const call = stub(Web3Eth.prototype, "call").resolves("0x48656c6c6f20576f726c6421"); // "Hello World!" hex-encoded
 
-    expect(await provider.call(`// SPDX-License-Identifier: MIT
+    expect(await provider.call({ code: `// SPDX-License-Identifier: MIT
 // compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
 pragma solidity ^0.8.24;
 
 contract HelloWorld {
     string public greet = "Hello World!";
     function getGreet() public view returns (string memory) { return greet; }
-}`, "0x76155e5B8c79713b2964b147149547E36973d805", "getGreet")).to.equal("0x48656c6c6f20576f726c6421");
+}`, address: "0x76155e5B8c79713b2964b147149547E36973d805", entrypoint: "getGreet" })).to.equal("0x48656c6c6f20576f726c6421");
 
     send.restore();
     call.restore();

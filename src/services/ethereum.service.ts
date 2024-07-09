@@ -68,10 +68,22 @@ export class EthereumProvider implements BlockchainProvider {
     return { abi, bytecode };
   }
 
-  async send(code: string, address: string, entrypoint: string, parameters: unknown[] = [], privateKey: Buffer): Promise<{ txHash: string, gasUsed: string }> {
-    const { abi } = EthereumProvider._getAbiAndBytecode(code);
-    const contract = new this._client.eth.Contract(abi, address);
-    const sender = contract.methods[entrypoint](...parameters);
+  async send({
+    code,
+    contract,
+    address,
+    entrypoint,
+    parameters,
+  }: {
+    code: string,
+    contract?: string,
+    address: string,
+    entrypoint: string,
+    parameters?: Array<unknown>,
+  }, privateKey: Buffer): Promise<{ txHash: string, gasUsed: string }> {
+    const { abi } = EthereumProvider._getAbiAndBytecode(code, contract);
+    const instance = new this._client.eth.Contract(abi, address);
+    const sender = instance.methods[entrypoint](...(parameters || []));
     const { rawTransaction, transactionHash } = await this._client.eth.accounts.signTransaction({
       to: address,
       data: sender.encodeABI(),
@@ -86,10 +98,22 @@ export class EthereumProvider implements BlockchainProvider {
     return { txHash: transactionHash, gasUsed: receipt.gasUsed.toString() };
   }
 
-  async call(code: string, address: string, entrypoint: string, parameters: unknown[] = []): Promise<string> {
-    const { abi } = EthereumProvider._getAbiAndBytecode(code);
-    const contract = new this._client.eth.Contract(abi, address);
-    const caller = contract.methods[entrypoint](...parameters);
+  async call({
+    code,
+    contract,
+    address,
+    entrypoint,
+    parameters,
+  }: {
+    code: string,
+    contract?: string,
+    address: string,
+    entrypoint: string,
+    parameters?: Array<unknown>,
+  }): Promise<string> {
+    const { abi } = EthereumProvider._getAbiAndBytecode(code, contract);
+    const instance = new this._client.eth.Contract(abi, address);
+    const caller = instance.methods[entrypoint](...(parameters || []));
     const result = await this._client.eth.call({
       to: address,
       data: caller.encodeABI(),
@@ -97,10 +121,18 @@ export class EthereumProvider implements BlockchainProvider {
     return result;
   }
 
-  async deploy(code: string, parameters: unknown[] = [], privateKey: Buffer): Promise<{ address: string, txHash: string, gasUsed: string }> {
-    const { abi, bytecode } = EthereumProvider._getAbiAndBytecode(code);
-    const contract = new this._client.eth.Contract(abi);
-    const deployer = contract.deploy({ data: `0x${bytecode}`, arguments: parameters });
+  async deploy({
+    code,
+    contract,
+    parameters,
+  }: {
+    code: string,
+    contract?: string,
+    parameters?: Array<unknown>,
+  }, privateKey: Buffer): Promise<{ address: string, txHash: string, gasUsed: string }> {
+    const { abi, bytecode } = EthereumProvider._getAbiAndBytecode(code, contract);
+    const instance = new this._client.eth.Contract(abi);
+    const deployer = instance.deploy({ data: `0x${bytecode}`, arguments: parameters });
     const { rawTransaction, transactionHash } = await this._client.eth.accounts.signTransaction({
       data: deployer.encodeABI(),
       gas: await deployer.estimateGas(),
