@@ -16,7 +16,7 @@ export class EthereumProvider implements BlockchainProvider {
     return balance.toString();
   }
 
-  private static _getAbiAndBytecode(code: string): { abi: ContractAbi, bytecode: string } {
+  private static _getAbiAndBytecode(code: string, contract?: string): { abi: ContractAbi, bytecode: string } {
     const input = {
       language: "Solidity",
       sources: {
@@ -45,8 +45,26 @@ export class EthereumProvider implements BlockchainProvider {
         }>,
       },
     } = JSON.parse(solc.compile(JSON.stringify(input)));
-    if (Object.keys(output.contracts["contract.sol"]).length > 1) throw new Error("Multiple contracts in a single file is not supported");
-    const [{ abi, evm: { bytecode: { object: bytecode } } }] = Object.values(output.contracts["contract.sol"]);
+    let result: {
+          abi: ContractAbi,
+          evm: {
+            bytecode: {
+              object: string,
+              opcodes: string,
+            },
+          },
+    } | undefined;
+    const nbOfContracts = Object.keys(output.contracts["contract.sol"]).length;
+    if (contract) {
+      result = output.contracts["contract.sol"][contract];
+      if (!result) throw new Error(`Contract '${contract}' not found`);
+    }
+    else if (nbOfContracts === 1) [result] = Object.values(output.contracts["contract.sol"]);
+    else {
+      throw new Error(`One contract must be selected among ${nbOfContracts}`);
+    }
+
+    const { abi, evm: { bytecode: { object: bytecode } } } = result;
     return { abi, bytecode };
   }
 

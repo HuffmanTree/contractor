@@ -44,6 +44,92 @@ describe("Ethereum Provider", () => {
     getBalance.restore();
   });
 
+  it("compiles the only contract of the Solidity code", () => {
+    expect((EthereumProvider as any)._getAbiAndBytecode(`
+// SPDX-License-Identifier: MIT
+// compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
+pragma solidity ^0.8.24;
+
+contract A {
+  uint256 public a = 30;
+}`).abi).to.deep.equal([{
+      inputs: [],
+      name: "a",
+      outputs: [{
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      }],
+      stateMutability: "view",
+      type: "function",
+    }]);
+  });
+
+  it("compiles the selected contract of the Solidity code", () => {
+    const code = `
+// SPDX-License-Identifier: MIT
+// compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
+pragma solidity ^0.8.24;
+
+contract A {
+  uint256 public a = 30;
+}
+
+contract B {
+  uint256 public b = 30;
+}`;
+
+    expect((EthereumProvider as any)._getAbiAndBytecode(code, "A").abi).to.deep.equal([{
+      inputs: [],
+      name: "a",
+      outputs: [{
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      }],
+      stateMutability: "view",
+      type: "function",
+    }]);
+
+    expect((EthereumProvider as any)._getAbiAndBytecode(code, "B").abi).to.deep.equal([{
+      inputs: [],
+      name: "b",
+      outputs: [{
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      }],
+      stateMutability: "view",
+      type: "function",
+    }]);
+  });
+
+  it("fails to compile if the Solidity code contains multiple contracts and none has been selected", () => {
+    expect(() => (EthereumProvider as any)._getAbiAndBytecode(`
+// SPDX-License-Identifier: MIT
+// compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
+pragma solidity ^0.8.24;
+
+contract A {
+  uint256 public a = 30;
+}
+
+contract B {
+  uint256 public b = 30;
+}`)).to.throw("One contract must be selected among 2");
+  });
+
+  it("fails to compile a contract that is not found", () => {
+    expect(() => (EthereumProvider as any)._getAbiAndBytecode(`
+// SPDX-License-Identifier: MIT
+// compiler version must be greater than or equal to 0.8.24 and less than 0.9.0
+pragma solidity ^0.8.24;
+
+contract A {
+  uint256 public a = 30;
+}`, "B")).to.throw("Contract 'B' not found");
+  });
+
   it("deploys a smart contract", async () => {
     const deploy = stub(Contract.prototype, "deploy").returns({
       encodeABI: () => "0xcafe",
