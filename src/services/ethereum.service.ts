@@ -21,12 +21,12 @@ export class EthereumProvider implements BlockchainProvider {
     const constructor = { input: abi.find(isEthereumAbiConstructorFragment)?.inputs?.map(v => v.type) || [] };
     const functions = abi.filter(isEthereumAbiFunctionFragment).map(v => ({
       name: v.name,
-      input: v.inputs?.map(v => v.type) || [],
+      input: v.inputs?.map(v => ({ type: v.type, name: v.name })) || [],
       output: v.outputs?.map(v => v.type) || [],
     }));
     const events = abi.filter(isEthereumAbiEventFragment).map(v => ({
       name: v.name,
-      input: v.inputs?.map(v => v.type) || [],
+      input: v.inputs?.map(v => ({ type: v.type, name: v.name, indexed: !!v.indexed })) || [],
     }));
     return { constructor, functions, events };
   }

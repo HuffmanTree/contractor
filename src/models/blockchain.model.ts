@@ -14,8 +14,8 @@ export function isEthereumAbiFunctionFragment(v: AbiFragment): v is AbiFunctionF
 
 export interface EthereumContractInfo {
   constructor: { input: Array<string> },
-  functions: Array<{ name: string, input: Array<string>, output: Array<string> }>,
-  events: Array<{ name: string, input: Array<string> }>,
+  functions: Array<{ name: string, input: Array<{ name: string, type: string }>, output: Array<string> }>,
+  events: Array<{ name: string, input: Array<{ name: string, type: string, indexed: boolean }> }>,
 }
 
 export interface BlockchainProvider {

@@ -229,10 +229,10 @@ contract HelloWorld {
       functions: [
         { name: "a", input: [], output: ["uint256"] },
         { name: "b", input: [], output: ["bool"] },
-        { name: "ip", input: ["uint256"], output: ["uint8"] },
-        { name: "m", input: ["address"], output: ["uint256"] },
+        { name: "ip", input: [{ name: "", type: "uint256" }], output: ["uint8"] },
+        { name: "m", input: [{ name: "", type: "address" }], output: ["uint256"] },
         { name: "me", input: [], output: ["address"] },
-        { name: "mm", input: ["address", "uint256"], output: ["bool"] },
+        { name: "mm", input: [{ name: "", type: "address" }, { name: "", type: "uint256" }], output: ["bool"] },
       ],
       events: [],
     }],
@@ -247,8 +247,8 @@ contract HelloWorld {
     }],
     ["contract BalanceContract { mapping(address => uint256) public balances; event Add(address indexed _address, uint256 _value); }", {
       constructor: { input: [] },
-      functions: [{ name: "balances", input: ["address"], output: ["uint256"] }],
-      events: [{ name: "Add", input: ["address", "uint256"] }],
+      functions: [{ name: "balances", input: [{ name: "", type: "address" }], output: ["uint256"] }],
+      events: [{ name: "Add", input: [{ name: "_address", indexed: true, type: "address" }, { name: "_value", indexed: false, type: "uint256" }] }],
     }],
   ].forEach(([code, expectedInfo], i, arr) => {
     it(`get info on the contract (${i + 1}/${arr.length})`, () => {
