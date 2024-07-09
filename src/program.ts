@@ -16,9 +16,7 @@ export class Program {
       throw new Error(`Profile not found '${name}'`);
     }
 
-    return `Name: ${name}
-Blockchain: ${profile.blockchain[0].toUpperCase() + profile.blockchain.substring(1)}
-Node URL: ${profile.url}`;
+    return { name, blockchain: profile.blockchain, url: profile.url };
   }
 
   public describeProfiles() {
@@ -28,10 +26,6 @@ Node URL: ${profile.url}`;
       throw new Error("No profiles loaded");
     }
 
-    let res = `${keys.length} profile${keys.length > 1 ? "s" : ""} loaded.\n\n`;
-
-    res += keys.map(this.describeProfile.bind(this)).join("\n\n");
-
-    return res;
+    return keys.map(this.describeProfile.bind(this));
   }
 }

@@ -58,7 +58,7 @@ describe("Program", () => {
     expect(() => program.describeProfiles()).to.throw("No profiles loaded");
   });
 
-  it("describes a set with more than 1 profiles", () => {
+  it("describes a set of profiles", () => {
     const program = new Program({
       ethereum_local: {
         blockchain: "ethereum",
@@ -70,30 +70,10 @@ describe("Program", () => {
       },
     });
 
-    expect(program.describeProfiles()).to.equal(`2 profiles loaded.
-
-Name: ethereum_local
-Blockchain: Ethereum
-Node URL: localhost:8545
-
-Name: tezos_local
-Blockchain: Tezos
-Node URL: localhost:8732`);
-  });
-
-  it("describes a set with 1 profile", () => {
-    const program = new Program({
-      tezos_local: {
-        blockchain: "tezos",
-        url: "localhost:8732",
-      },
-    });
-
-    expect(program.describeProfiles()).to.equal(`1 profile loaded.
-
-Name: tezos_local
-Blockchain: Tezos
-Node URL: localhost:8732`);
+    expect(program.describeProfiles()).to.deep.equal([
+      { name: "ethereum_local", blockchain: "ethereum", url: "localhost:8545" },
+      { name: "tezos_local", blockchain: "tezos", url: "localhost:8732" },
+    ]);
   });
 
   it("fails to describe a missing profile", () => {
@@ -110,8 +90,10 @@ Node URL: localhost:8732`);
       },
     });
 
-    expect(program.describeProfile("tezos_local")).to.equal(`Name: tezos_local
-Blockchain: Tezos
-Node URL: localhost:8732`);
+    expect(program.describeProfile("tezos_local")).to.deep.equal({
+      name: "tezos_local",
+      blockchain: "tezos",
+      url: "localhost:8732",
+    });
   });
 });
