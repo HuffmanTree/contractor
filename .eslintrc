@@ -30,6 +30,7 @@
     "@typescript-eslint/semi": ["error", "always"],
     "quotes": "off",
     "@typescript-eslint/quotes": ["error", "double"],
+    "quote-props": ["error", "as-needed"],
     "comma-dangle": "off",
     "no-console": "error",
     "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
