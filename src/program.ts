@@ -1,4 +1,5 @@
 import { isEthereumProfile, isTezosProfile, type BlockchainProfile } from "./models/profile.model.js";
+import { BlockchainProviderFactory } from "./services/blockchain.service.js";
 
 export class Program {
   constructor(private readonly profiles: Record<string, BlockchainProfile>) {}
@@ -27,5 +28,10 @@ export class Program {
     }
 
     return keys.map(this.describeProfile.bind(this));
+  }
+
+  public getBalance(profile: unknown, account: string) {
+    const provider = BlockchainProviderFactory.fromProfile(profile);
+    return provider.getBalance(account);
   }
 }
