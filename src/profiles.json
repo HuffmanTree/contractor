@@ -1,10 +1,10 @@
 {
   "ethereum_local": {
     "blockchain": "ethereum",
-    "url": "localhost:8545"
+    "url": "http://localhost:8545"
   },
   "tezos_local": {
     "blockchain": "tezos",
-    "url": "localhost:8732"
+    "url": "http://localhost:8732"
   }
 }
