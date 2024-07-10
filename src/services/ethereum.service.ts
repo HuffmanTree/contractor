@@ -11,9 +11,9 @@ export class EthereumProvider implements BlockchainProvider {
     this._client = new Web3(profile.url);
   }
 
-  async getBalance(address: string): Promise<string> {
+  async getBalance(address: string): Promise<{ balance: string, unit: string }> {
     const balance = await this._client.eth.getBalance(address);
-    return balance.toString();
+    return { balance: balance.toString(), unit: "wei" };
   }
 
   public static getInfo({ code, contract }: { code: string, contract?: string }): EthereumContractInfo {

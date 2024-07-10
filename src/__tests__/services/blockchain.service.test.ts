@@ -38,7 +38,7 @@ describe("Ethereum Provider", () => {
   it("gets the balance of an account", async () => {
     const getBalance = stub(Web3Eth.prototype, "getBalance").resolves(30n);
 
-    expect(await provider.getBalance("address")).to.equal("30");
+    expect(await provider.getBalance("address")).to.deep.equal({ balance: "30", unit: "wei" });
     expect(getBalance.calledOnceWithExactly("address")).to.be.true;
 
     getBalance.restore();
@@ -270,7 +270,7 @@ describe("Tezos Provider", () => {
   it("gets the balance of an account", async () => {
     const getBalance = stub(RpcClient.prototype, "getBalance").resolves(BigNumber(30));
 
-    expect(await provider.getBalance("address")).to.equal("30");
+    expect(await provider.getBalance("address")).to.deep.equal({ balance: "30", unit: "µꜩ" });
     expect(getBalance.calledOnceWithExactly("address")).to.be.true;
 
     getBalance.restore();

@@ -9,8 +9,8 @@ export class TezosProvider implements BlockchainProvider {
     this._client = new TezosToolkit(profile.url);
   }
 
-  async getBalance(address: string): Promise<string> {
+  async getBalance(address: string): Promise<{ balance: string, unit: string }> {
     const balance = await this._client.rpc.getBalance(address);
-    return balance.toString();
+    return { balance: balance.toString(), unit: "µꜩ" };
   }
 }

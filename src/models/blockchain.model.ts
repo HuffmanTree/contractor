@@ -19,5 +19,5 @@ export interface EthereumContractInfo {
 }
 
 export interface BlockchainProvider {
-  getBalance(address: string): Promise<string>;
+  getBalance(address: string): Promise<{ balance: string, unit: string }>;
 }
