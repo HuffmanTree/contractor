@@ -95,7 +95,7 @@ export class EthereumProvider implements BlockchainProvider {
     address: string,
     entrypoint: string,
     parameters?: Array<unknown>,
-  }, privateKey: Buffer): Promise<{ txHash: string, gasUsed: string }> {
+  }, privateKey: string): Promise<{ txHash: string, gasUsed: string }> {
     const { abi } = EthereumProvider._getAbiAndBytecode(code, contract);
     const instance = new this._client.eth.Contract(abi, address);
     const sender = instance.methods[entrypoint](...(parameters || []));
@@ -104,10 +104,10 @@ export class EthereumProvider implements BlockchainProvider {
       data: sender.encodeABI(),
       gas: await sender.estimateGas(),
       gasPrice: await this._client.eth.getGasPrice(),
-      nonce: await this._client.eth.getTransactionCount(this._client.eth.accounts.privateKeyToAddress(privateKey)),
+      nonce: await this._client.eth.getTransactionCount(this._client.eth.accounts.privateKeyToAddress(`0x${privateKey}`)),
       chainId: await this._client.eth.getChainId(),
       networkId: await this._client.eth.net.getId(),
-    }, privateKey);
+    }, `0x${privateKey}`);
     const receipt = await this._client.eth.sendSignedTransaction(rawTransaction);
     if (transactionHash !== receipt.transactionHash) throw new Error("Transaction hash mismatch");
     return { txHash: transactionHash, gasUsed: receipt.gasUsed.toString() };
@@ -144,7 +144,7 @@ export class EthereumProvider implements BlockchainProvider {
     code: string,
     contract?: string,
     parameters?: Array<unknown>,
-  }, privateKey: Buffer): Promise<{ address: string, txHash: string, gasUsed: string }> {
+  }, privateKey: string): Promise<{ address: string, txHash: string, gasUsed: string }> {
     const { abi, bytecode } = EthereumProvider._getAbiAndBytecode(code, contract);
     const instance = new this._client.eth.Contract(abi);
     const deployer = instance.deploy({ data: `0x${bytecode}`, arguments: parameters });
@@ -152,10 +152,10 @@ export class EthereumProvider implements BlockchainProvider {
       data: deployer.encodeABI(),
       gas: await deployer.estimateGas(),
       gasPrice: await this._client.eth.getGasPrice(),
-      nonce: await this._client.eth.getTransactionCount(this._client.eth.accounts.privateKeyToAddress(privateKey)),
+      nonce: await this._client.eth.getTransactionCount(this._client.eth.accounts.privateKeyToAddress(`0x${privateKey}`)),
       chainId: await this._client.eth.getChainId(),
       networkId: await this._client.eth.net.getId(),
-    }, privateKey);
+    }, `0x${privateKey}`);
     const receipt = await this._client.eth.sendSignedTransaction(rawTransaction);
     if (!receipt.contractAddress) throw new Error("Missing 'contractAddress'");
     if (transactionHash !== receipt.transactionHash) throw new Error("Transaction hash mismatch");
