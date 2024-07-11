@@ -3,6 +3,10 @@
     "blockchain": "ethereum",
     "url": "http://localhost:8545"
   },
+  "ethereum_sepolia": {
+    "blockchain": "ethereum",
+    "url": "https://rpc2.sepolia.org"
+  },
   "tezos_local": {
     "blockchain": "tezos",
     "url": "http://localhost:8732"
