@@ -38,6 +38,7 @@
     "typescript-eslint-language-service": "^5.0.5"
   },
   "dependencies": {
+    "@taquito/signer": "^20.0.1",
     "@taquito/taquito": "^20.0.1",
     "solc": "^0.8.26",
     "web3": "^4.10.0"

@@ -20,4 +20,13 @@ export interface EthereumContractInfo {
 
 export interface BlockchainProvider {
   getBalance(address: string): Promise<{ balance: string, unit: string }>;
+  deploy({
+    code,
+    contract,
+    parameters,
+  }: {
+    code: string,
+    contract?: string,
+    parameters?: Array<unknown>,
+  }, privateKey: string): Promise<{ address: string, txHash: string, gasUsed: string }>;
 }
