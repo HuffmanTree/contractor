@@ -135,4 +135,102 @@ code {
     getHead.restore();
     getEntrypoints.restore();
   });
+
+  it("sends a transaction to a contract", async () => {
+    const getContract = stub(RpcClient.prototype, "getContract").resolves({
+      balance: BigNumber(0),
+      script: {
+        storage: {
+          prim: "",
+        },
+        code: [{
+          prim: "parameter",
+          args: [
+            { prim: "pair", args: [ { prim: "string", annots: [ "%firstname" ] }, { prim: "string", annots: [ "%lastname" ] } ] } ],
+        }, {
+          prim: "storage",
+          args: [ { prim: "string" } ],
+        }, {
+          prim: "code",
+          args: [
+            [
+              { prim: "CAR" },
+              { prim: "DUP" },
+              { prim: "PUSH", args: [ { prim: "string" }, { string: " " } ] },
+              { prim: "SWAP" },
+              { prim: "CAR" },
+              { prim: "CONCAT" },
+              { prim: "DIP", args: [ [ { prim: "CDR" } ] ] },
+              { prim: "CONCAT" },
+              { prim: "NIL", args: [ { prim: "operation" } ] },
+              { prim: "PAIR" },
+            ],
+          ],
+        }],
+      },
+    });
+    const getEntrypoints = stub(RpcClient.prototype, "getEntrypoints").resolves({
+      entrypoints: {
+        default: {
+          prim: "parameter",
+          args: [{
+            prim: "pair",
+            args: [{
+              prim: "string",
+              annots: ["%firstname"],
+            }, {
+              prim: "string",
+              annots: ["%lastname"],
+            }],
+          }],
+        },
+      },
+    } as any);
+    const getConstants = stub(RpcClient.prototype, "getConstants").resolves({
+      hard_gas_limit_per_operation: BigNumber(50),
+      hard_storage_limit_per_operation: BigNumber(30),
+      cost_per_byte: BigNumber(4),
+    } as any);
+    const getManagerKey = stub(RpcClient.prototype, "getManagerKey").resolves({ key: "edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn" });
+    const getBlockHeader = stub(RpcClient.prototype, "getBlockHeader").resolves({
+      hash: "BLhfKQFR5WHG7pU3Ryv1ZDEkXmBTzJ8pSjLLSFNJohoGqQf62hu",
+    } as any);
+    const getProtocols = stub(RpcClient.prototype, "getProtocols").resolves({} as any);
+    const getChainId = stub(RpcClient.prototype, "getChainId").resolves("NetXdQprcVkpaWU");
+    const simulateOperation = stub(RpcClient.prototype, "simulateOperation").resolves({
+      contents: [{
+        kind: OpKind.TRANSACTION,
+      }],
+    } as any);
+    const preapplyOperations = stub(RpcClient.prototype, "preapplyOperations").resolves([{
+      contents: [{
+        kind: OpKind.TRANSACTION,
+        fee: "500",
+        metadata: {
+          operation_result: { status: "applied", consumed_milligas: "10000" },
+        },
+      }],
+    }] as any);
+    const injectOperation = stub(RpcClient.prototype, "injectOperation").resolves("onxan6bjtjW8EjkPmDDvBjcxkXCFZUUfHkCfzZrGBRXkifBwRr4");
+
+    expect(await provider.send({
+      address: "KT1HRUjufJWHNPTYrTAdJggW3hoQi3YnTzXM",
+      entrypoint: "default",
+      parameters: [{ firstname: "Ludovic", lastname: "Cruchot" }],
+    }, "edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq")).to.deep.equal({
+      txHash: "onxan6bjtjW8EjkPmDDvBjcxkXCFZUUfHkCfzZrGBRXkifBwRr4",
+      gasUsed: "10",
+    });
+
+    getContract.restore();
+    getEntrypoints.restore();
+    getConstants.restore();
+    getManagerKey.restore();
+    getBlockHeader.restore();
+    getProtocols.restore();
+    getChainId.restore();
+    simulateOperation.restore();
+    preapplyOperations.restore();
+    injectOperation.restore();
+  });
 });

@@ -31,4 +31,19 @@ export class TezosProvider implements BlockchainProvider {
     const { address } = await op.contract();
     return { address, txHash: op.hash, gasUsed: op.consumedGas ?? "0" };
   }
+
+  async send({
+    address,
+    entrypoint,
+    parameters,
+  }: {
+    address: string,
+    entrypoint: string,
+    parameters?: Array<unknown>,
+  }, privateKey: string): Promise<{ txHash: string, gasUsed: string }> {
+    this._client.setSignerProvider(new InMemorySigner(privateKey));
+    const contract = await this._client.contract.at(address);
+    const op = await contract.methodsObject[entrypoint](...(parameters || [])).send();
+    return { txHash: op.hash, gasUsed: op.consumedGas ?? "0" };
+  }
 }
