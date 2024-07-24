@@ -3,7 +3,9 @@ import { EthereumProvider } from "../services/ethereum.service.js";
 import { TezosProvider } from "../services/tezos.service.js";
 
 // These tests must not run outside of a local environment
-describe.skip("Integration Tests", () => {
+describe.skip("Integration Tests", function () {
+  this.timeout(50000);
+
   describe("Ethereum", () => {
     const provider = new EthereumProvider({
       blockchain: "ethereum",
@@ -68,6 +70,38 @@ contract AgeContract {
         balance: "2000000000000",
         unit: "µꜩ",
       });
+    });
+
+    it("deploys a smart contract with an empty initial storage", async () => {
+      expect(await provider.deploy({ code: `parameter (pair (string %firstname) (string %lastname));
+storage string;
+code {
+       CAR;
+       DUP;
+       PUSH string " ";
+       SWAP;
+       CAR;
+       CONCAT;
+       DIP { CDR };
+       CONCAT;
+       NIL operation; PAIR;
+     };`, parameters: [""] }, "edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt")).to.have.keys("address", "txHash", "gasUsed");
+    });
+
+    it("deploys a smart contract with a non empty initial storage", async () => {
+      expect(await provider.deploy({ code: `parameter (pair (string %firstname) (string %lastname));
+storage string;
+code {
+       CAR;
+       DUP;
+       PUSH string " ";
+       SWAP;
+       CAR;
+       CONCAT;
+       DIP { CDR };
+       CONCAT;
+       NIL operation; PAIR;
+     };`, parameters: ["Jean John"] }, "edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt")).to.have.keys("address", "txHash", "gasUsed");
     });
   });
 });
