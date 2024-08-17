@@ -42,4 +42,17 @@ export interface BlockchainProvider {
     entrypoint: string,
     parameters?: Array<unknown>,
   }, privateKey: string): Promise<{ txHash: string, gasUsed: string }>;
+  call({
+    code,
+    contract,
+    address,
+    entrypoint,
+    parameters,
+  }: {
+    code: string,
+    contract?: string,
+    address: string,
+    entrypoint: string,
+    parameters?: Array<unknown>,
+  }): Promise<unknown>;
 }

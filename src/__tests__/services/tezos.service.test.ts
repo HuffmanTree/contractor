@@ -1,5 +1,6 @@
 import { RpcClient } from "@taquito/rpc";
-import { OpKind } from "@taquito/taquito";
+import { BigMapAbstraction, OpKind } from "@taquito/taquito";
+import { Tzip16ContractAbstraction } from "@taquito/tzip16";
 import { BigNumber } from "bignumber.js";
 import { expect } from "chai";
 import { stub } from "sinon";
@@ -232,5 +233,73 @@ code {
     simulateOperation.restore();
     preapplyOperations.restore();
     injectOperation.restore();
+  });
+
+  it.only("executes an offchain view", async () => {
+    const getContract = stub(RpcClient.prototype, "getContract").resolves({
+      balance: BigNumber(0),
+      script: {
+        code: [{
+          prim: "parameter",
+          args: [{
+            prim: "unit",
+          }],
+        }, {
+          prim: "storage",
+          args: [{
+            prim: "pair",
+            args: [{
+              prim: "big_map",
+              args: [{ prim: "string" }, { prim: "bytes" }],
+              annots: [ "%metadata" ],
+            }, {
+              prim: "nat",
+              annots: [ "%n" ],
+            }],
+          }],
+        }, {
+          prim: "code",
+          args: [
+            [
+              { prim: "CDR" },
+              { prim: "NIL", args: [ { prim: "operation" } ] },
+              { prim: "PAIR" },
+            ],
+          ],
+        }],
+        storage: {
+          prim: "Pair",
+          args: [ { int: "4" }, { int: "42" } ],
+        },
+      },
+    });
+    const getEntrypoints = stub(RpcClient.prototype, "getEntrypoints").resolves({
+      entrypoints: {},
+    });
+    const getStorage = stub(RpcClient.prototype, "getStorage").resolves({
+      prim: "Pair",
+      args: [ { int: "4" }, { int: "42" } ],
+    });
+    const packData = stub(RpcClient.prototype, "packData").resolves({ packed: "", gas: undefined });
+    const getBigMapExpr = stub(RpcClient.prototype, "getBigMapExpr").resolves({});
+    const bigMapGet = stub(BigMapAbstraction.prototype, "get").resolves("68747470733a2f2f6d657461646174612e6a736f6e");
+    const getMetadataViews = stub(Tzip16ContractAbstraction.prototype, "metadataViews").resolves({
+      default: () => ({
+        executeView: () => Promise.resolve("3432"),
+      }),
+    });
+
+    expect(await provider.call({
+      address: "KT1HRUjufJWHNPTYrTAdJggW3hoQi3YnTzXM",
+      entrypoint: "default",
+    })).to.equal("42");
+
+    getContract.restore();
+    getEntrypoints.restore();
+    getStorage.restore();
+    packData.restore();
+    getBigMapExpr.restore();
+    bigMapGet.restore();
+    getMetadataViews.restore();
   });
 });

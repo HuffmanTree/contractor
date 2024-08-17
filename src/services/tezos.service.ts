@@ -1,6 +1,7 @@
 import { Parser } from "@taquito/michel-codec";
 import { InMemorySigner } from "@taquito/signer";
 import { TezosToolkit } from "@taquito/taquito";
+import { Tzip16Module, tzip16, bytesToString } from "@taquito/tzip16";
 import type { BlockchainProvider } from "../models/blockchain.model.js";
 import type { TezosProfile } from "../models/profile.model.js";
 
@@ -45,5 +46,21 @@ export class TezosProvider implements BlockchainProvider {
     const contract = await this._client.contract.at(address);
     const op = await contract.methodsObject[entrypoint](...(parameters || [])).send();
     return { txHash: op.hash, gasUsed: op.consumedGas ?? "0" };
+  }
+
+  async call({
+    address,
+    entrypoint,
+    parameters,
+  }: {
+    address: string,
+    entrypoint: string,
+    parameters?: Array<unknown>,
+  }): Promise<unknown> {
+    this._client.addExtension(new Tzip16Module());
+    const contract = await this._client.contract.at(address, tzip16);
+    const views = await contract.tzip16().metadataViews();
+    const result = bytesToString(await views[entrypoint]().executeView(...(parameters || [])));
+    return result;
   }
 }
