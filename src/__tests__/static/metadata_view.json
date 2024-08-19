@@ -1,0 +1,23 @@
+{
+  "views": [{
+    "implementations": [{
+      "michelsonStorageView": {
+        "annotations": [],
+        "returnType": {
+          "prim": "string"
+        },
+        "code": [
+          {"prim":  "CDR"},
+          {"prim":  "CDR"},
+          {"prim":  "PUSH", "args": [{ "prim": "string" }, { "string" : "Hello " }] }, 
+          {"prim":  "CONCAT"}
+       ],
+        "parameter": {
+          "prim":  "unit"
+        }
+      }
+    }],
+    "name": "SayHello",
+    "pure": true
+  }]
+}

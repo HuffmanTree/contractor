@@ -1,3 +1,5 @@
+import { MichelsonMap } from "@taquito/taquito";
+import { stringToBytes } from "@taquito/tzip16";
 import { expect } from "chai";
 import { EthereumProvider } from "../services/ethereum.service.js";
 import { TezosProvider } from "../services/tezos.service.js";
@@ -88,20 +90,40 @@ code {
      };`, parameters: [""] }, "edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt")).to.have.keys("address", "txHash", "gasUsed");
     });
 
-    it("deploys a smart contract with a non empty initial storage", async () => {
-      expect(await provider.deploy({ code: `parameter (pair (string %firstname) (string %lastname));
-storage string;
+    it("deploys a smart contract with a non empty initial storage, changes its storage and execute an offchain view", async () => {
+      const metadataBigMap = new MichelsonMap();
+      metadataBigMap.set("", stringToBytes("http://localhost:3535/metadata_view.json"));
+
+      const receipt = await provider.deploy({ code: `parameter (pair (string %firstname) (string %lastname));
+storage (pair (big_map %metadata string bytes) (string %name));
 code {
-       CAR;
-       DUP;
-       PUSH string " ";
+       UNPAIR;
        SWAP;
        CAR;
-       CONCAT;
-       DIP { CDR };
-       CONCAT;
+       DIP {
+             DUP;
+             PUSH string " ";
+             SWAP;
+             CAR;
+             CONCAT;
+             DIP { CDR };
+             CONCAT;
+           };
+       PAIR;
        NIL operation; PAIR;
-     };`, parameters: ["Jean John"] }, "edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt")).to.have.keys("address", "txHash", "gasUsed");
+     };`, parameters: [{
+        metadata: metadataBigMap,
+        name: "Jean John",
+      }] }, "edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt");
+
+      expect(receipt).to.have.keys("address", "txHash", "gasUsed");
+
+      expect(await provider.call({ address: receipt.address, entrypoint: "SayHello" })).to.equal("Hello Jean John");
+      expect(await provider.send({ address: receipt.address, entrypoint: "default", parameters: [{
+        firstname: "Martin",
+        lastname: "Matin",
+      }] }, "edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt")).to.have.keys("txHash", "gasUsed");
+      expect(await provider.call({ address: receipt.address, entrypoint: "SayHello" })).to.equal("Hello Martin Matin");
     });
   });
 });
