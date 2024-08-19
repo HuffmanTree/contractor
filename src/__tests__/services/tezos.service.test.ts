@@ -1,5 +1,5 @@
 import { RpcClient } from "@taquito/rpc";
-import { BigMapAbstraction, OpKind } from "@taquito/taquito";
+import { BigMapAbstraction, Operation, OpKind } from "@taquito/taquito";
 import { Tzip16ContractAbstraction } from "@taquito/tzip16";
 import { BigNumber } from "bignumber.js";
 import { expect } from "chai";
@@ -213,6 +213,7 @@ code {
       }],
     }] as any);
     const injectOperation = stub(RpcClient.prototype, "injectOperation").resolves("onxan6bjtjW8EjkPmDDvBjcxkXCFZUUfHkCfzZrGBRXkifBwRr4");
+    const confirmation = stub(Operation.prototype, "confirmation").resolves(1);
 
     expect(await provider.send({
       address: "KT1HRUjufJWHNPTYrTAdJggW3hoQi3YnTzXM",
@@ -233,9 +234,10 @@ code {
     simulateOperation.restore();
     preapplyOperations.restore();
     injectOperation.restore();
+    confirmation.restore();
   });
 
-  it.only("executes an offchain view", async () => {
+  it("executes an offchain view", async () => {
     const getContract = stub(RpcClient.prototype, "getContract").resolves({
       balance: BigNumber(0),
       script: {
@@ -285,7 +287,7 @@ code {
     const bigMapGet = stub(BigMapAbstraction.prototype, "get").resolves("68747470733a2f2f6d657461646174612e6a736f6e");
     const getMetadataViews = stub(Tzip16ContractAbstraction.prototype, "metadataViews").resolves({
       default: () => ({
-        executeView: () => Promise.resolve("3432"),
+        executeView: () => Promise.resolve("42"),
       }),
     });
 
