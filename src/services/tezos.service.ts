@@ -29,6 +29,7 @@ export class TezosProvider implements BlockchainProvider {
     const parsed = p.parseScript(code);
     if (!parsed) throw new Error("Can not parse Michelson file");
     const op = await this._client.contract.originate({ code: parsed, storage: (parameters || [])[0] });
+    await op.confirmation(1);
     const { address } = await op.contract();
     return { address, txHash: op.hash, gasUsed: op.consumedGas ?? "0" };
   }
@@ -45,6 +46,7 @@ export class TezosProvider implements BlockchainProvider {
     this._client.setSignerProvider(new InMemorySigner(privateKey));
     const contract = await this._client.contract.at(address);
     const op = await contract.methodsObject[entrypoint](...(parameters || [])).send();
+    await op.confirmation(1);
     return { txHash: op.hash, gasUsed: op.consumedGas ?? "0" };
   }
 
