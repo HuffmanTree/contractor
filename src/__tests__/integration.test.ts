@@ -65,9 +65,9 @@ contract AgeContract {
     });
 
     it("gets the balance of 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'", async () => {
-      // 2000000 XTZ on a fresh node
+      // 50000 XTZ on a fresh node
       expect(await provider.getBalance("tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb")).to.deep.equal({
-        balance: "2000000000000",
+        balance: "50000000000",
         unit: "µꜩ",
       });
     });
