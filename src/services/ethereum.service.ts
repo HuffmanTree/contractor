@@ -61,13 +61,13 @@ export class EthereumProvider implements BlockchainProvider {
       },
     } = JSON.parse(solc.compile(JSON.stringify(input)));
     let result: {
-          abi: ContractAbi,
-          evm: {
-            bytecode: {
-              object: string,
-              opcodes: string,
-            },
-          },
+      abi: ContractAbi,
+      evm: {
+        bytecode: {
+          object: string,
+          opcodes: string,
+        },
+      },
     } | undefined;
     const nbOfContracts = Object.keys(output.contracts["contract.sol"]).length;
     if (contract) {
